@@ -85,6 +85,10 @@ class Libreria{
             }
         }
 
+        int dimensione(){
+            return libreria.size();
+        }
+
         // funzione dedicata alla ricerca di un libro nella libreria, stampa se viene trovato il libro altrimenti viene 
         // visualizzato un messaggio che indica che il libro non è presente all'interno della libreria
         void cerca_libro(string titolo){
@@ -267,7 +271,7 @@ int main(){
     popola_libreria(nuova_libreria);
 
 
-    cout<<"Dimensione attuale della libreria: "<<nuova_libreria.libreria.size()<<endl;
+    cout<<"Dimensione attuale della libreria: "<<nuova_libreria.dimensione()<<endl;
     do{
 
         stampa_menu_principale();
