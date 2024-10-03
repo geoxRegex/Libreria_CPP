@@ -43,13 +43,8 @@ class Libro{
         string ISBN;
         float prezzo;
 
-        Libro(string t, string a, int anno, string isbn, float prezzo) {
-            titolo = t;
-            autore = a;
-            anno_pubblicazione = anno;
-            ISBN = isbn; 
-            prezzo = prezzo;
-        }
+        Libro(string t, string a, int anno, string isbn, float prezzo): titolo(t), autore(a), anno_pubblicazione(anno), ISBN(isbn), prezzo(prezzo){}
+            
 
         // restituisce il nome
         string getNome(){
@@ -58,8 +53,8 @@ class Libro{
 
 
         void stampa(){
-            cout<<"Dettaglio libro con condice ISBN: "<< ISBN<< endl;
-            cout<<" Titolo: "<< titolo << "\n Autore: "<< autore << "\n anno pubblicazione: "<< anno_pubblicazione<<"\n prezzo"<< prezzo <<endl; 
+            cout<<"\nDettaglio libro con condice ISBN: "<< ISBN<< endl;
+            cout<<"\tTitolo: "<< titolo << "\n\tAutore: "<< autore << "\n\tanno pubblicazione: "<< anno_pubblicazione<<"\n\tprezzo: "<< prezzo <<endl; 
         }
 
 
@@ -238,15 +233,23 @@ int aggiungi_libro(Libreria l){
 
 
 // funzione dedicata alla stampa del menu principale
-
 void stampa_menu_principale(){
 
+    cout<<"\nMenu' iniziale, scegliere l'operazione e inserire il valore corrispondente:"<<endl;
     cout<<"  1.Accesso menu per inserire un libro nella libreria"<<endl;
     cout<<"  2.Modifica le informazioni di un libro dato il codicd ISBN"<<endl;
     cout<<"  3.Rimuovere un libro dal catalogo"<<endl;
     cout<<"  4.Visualizzare le informazioni di un libro"<<endl;
     cout<<"  5.Visualizzre i dettagli di tutti i libri"<<endl;
     cout<<"  6. Chiudere il programma"<<endl;
+    cout<<"\n\tScelta:  ";
+}
+
+// passaggio di 
+void popola_libreria(Libreria &l){
+    l.aggiungi_nuovo(Libro("Il Nome della Rosa", "Umberto Eco", 1980, "978-8806174238", 12.99));
+    l.libreria.emplace_back(Libro("1984", "George Orwell", 1949, "978-0451524935", 9.99));
+    l.libreria.emplace_back(Libro("Il Signore degli Anelli", "J.R.R. Tolkien", 1954, "978-0261102385", 22.99));
 }
 
 
@@ -260,10 +263,15 @@ int main(){
      * 
      */
 
+
+    popola_libreria(nuova_libreria);
+
+
+    cout<<"Dimensione attuale della libreria: "<<nuova_libreria.libreria.size()<<endl;
     do{
-        cout<<"\nMenu' iniziale, scegliere l'operazione e inserire il valore corrispondente:"<<endl;
+
         stampa_menu_principale();
-        cout<<"\n\tScelta:  ";
+        
         cin>>scelta;
         switch(scelta){
             case 1:  
@@ -278,18 +286,18 @@ int main(){
                 break;
             case 4: 
                 if ( ! nuova_libreria.libreria.empty() ){
-                cout<<"Inserire il titolo del libro da cercare: ";
+                cout<<"\nInserire il titolo del libro da cercare: ";
                 cin>>titolo;
                 nuova_libreria.cerca_libro(titolo);
                 }else {
-                    cout<<"La libreria risulta essere vuota"<<endl;
+                    cout<<"\nLa libreria risulta essere vuota\n"<<endl;
                 }
                 break;
             case 5: 
                 nuova_libreria.visualizza_catalogo();
                 break;
             case 6:
-                cout<<"Spegnimento del programma"<<endl;
+                cout<<"\nSpegnimento del programma...\n"<<endl;
                 break;
             default:
                 continue;
