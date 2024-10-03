@@ -1,10 +1,13 @@
 #include <iostream>
 #include <string>
 #include <vector>
+
+
 using namespace std;
 
 
 
+// verificare inoltre le funzionalità del codice e le specifiche del codice ISBN
 #define DIMENSIONE_ISBN 13 // dimensione fissata per la lunghezza del codice ISBN, aiuterà in caso di modifiche future
 
 int ISBN_corretto(string codice){
@@ -48,6 +51,12 @@ class Libro{
             prezzo = prezzo;
         }
 
+        // restituisce il nome
+        string getNome(){
+            return titolo;
+        }
+
+
         void stampa(){
             cout<<"Dettaglio libro con condice ISBN: "<< ISBN<< endl;
             cout<<" Titolo: "<< titolo << "\n Autore: "<< autore << "\n anno pubblicazione: "<< anno_pubblicazione<<"\n prezzo"<< prezzo <<endl; 
@@ -61,9 +70,8 @@ class Libreria{
 
         vector<Libro> libreria;
 
-        int aggiungi_nuovo(Libro libro){
+        int aggiungi_nuovo(Libro libro){   
             
-
             libreria.push_back(libro);    
             
             return 0;
@@ -71,12 +79,33 @@ class Libreria{
         }
 
         void visualizza_catalogo(){
-            for(Libro l : libreria){
-                l.stampa();
+
+            if ( libreria.size() == 0 ){
+                cout<<"\nLa libreria risulta attualmente vuota\n"<<endl;
+            }
+            else {
+                for(Libro l : libreria){
+                    l.stampa();
+                }
             }
         }
 
+        // funzione dedicata alla ricerca di un libro nella libreria, stampa se viene trovato il libro altrimenti viene 
+        // visualizzato un messaggio che indica che il libro non è presente all'interno della libreria
+        void cerca_libro(string titolo){
+            string s;
+            int i;
+            for (i=0; i < libreria.size(); i++ ){
+                if  ( libreria[i].getNome() == titolo){
+                    libreria[i].stampa();
+                    break;
+                }
+            }
+            cout<<"Libro non trovato all'interno della libreria"<<endl;
+        }
+
         int rimuovi(string isbn){
+            // TODO
             // funzione da implementare per rimuovere il libro tramite il codice ISBN
 
             return 0;
@@ -89,11 +118,14 @@ class Libreria{
 // verifica formato del prezzo
 int prezzo_valido(float prezzo){
 
+    // TODO
     return 1;
 }
 
+
 // verifica se esistono altri nomi con uguali (nome, autore) oppure stesso ISBN
 int presente(string nome, string autore, string ISBN){
+    // TODO
     
     return 0;
 }
@@ -119,7 +151,7 @@ void rimuovi_libro(Libreria l){
     int scelta =0, elimina=0;
     string isbn="", titolo, autore;
     do{
-    cout<<"Scegliere se rimuovo un libro tramite: "<<endl;
+    cout<<"Scegliere se rimuovere un libro tramite: "<<endl;
     cout<< "  1.Titolo e autore"<<endl;
     cout<< "  2.Codice ISBN"<<endl;
     cout<< "  3.Uscire dal menu' per la rimozione libri"<<endl;
@@ -186,11 +218,18 @@ int aggiungi_libro(Libreria l){
     
 
 
+    /**  
+     * Inserimento del nuovo libro all'interno della libreria se:
+     *         ISBN corretto (vedi regole)
+     *         prezzo valido (float)
+     *         il libro non è presente all'interno della liberia (stesso autore e stesso nome)
+     */ 
     if(ISBN_corretto(ISBN) && prezzo_valido(prezzo) && !presente(nome, autore, ISBN) ){
+        
         l.aggiungi_nuovo(Libro(nome, autore, anno, ISBN, prezzo));
-
-
+        
         cout<<"Inserimento del nuovo libro nella libreria avvenuto correttamente"<<endl;
+        
 
     }   
 
@@ -198,37 +237,66 @@ int aggiungi_libro(Libreria l){
 };
 
 
+// funzione dedicata alla stampa del menu principale
+
+void stampa_menu_principale(){
+
+    cout<<"  1.Accesso menu per inserire un libro nella libreria"<<endl;
+    cout<<"  2.Modifica le informazioni di un libro dato il codicd ISBN"<<endl;
+    cout<<"  3.Rimuovere un libro dal catalogo"<<endl;
+    cout<<"  4.Visualizzare le informazioni di un libro"<<endl;
+    cout<<"  5.Visualizzre i dettagli di tutti i libri"<<endl;
+    cout<<"  6. Chiudere il programma"<<endl;
+}
+
+
+
 int main(){
     int scelta = 0;
-    Libreria nuova;
+    Libreria nuova_libreria;
+    string titolo;
     /**
      * @brief variabile scelta, necessaria per poter leggere da std input un intero per poter effettuare le operazioni con l'utente
      * 
      */
 
     do{
-        cout<<"Menu' iniziale, scegliere l'operazione e inserire il valore corrispondente:"<<endl;
-        cout<<" 1.Accesso menu per inserire un libro nella libreria\n 2.Modifica le informazioni di un libro dato il codicd ISBN\n 3.Rimuovere un libro dal catalogo\n 4.Visualizzare le informazioni di un libro \n 5.Visualizzre i dettagli di tutti i libri\n\tScelta: "<<endl;
+        cout<<"\nMenu' iniziale, scegliere l'operazione e inserire il valore corrispondente:"<<endl;
+        stampa_menu_principale();
+        cout<<"\n\tScelta:  ";
         cin>>scelta;
         switch(scelta){
             case 1:  
-                aggiungi_libro(nuova);
+                aggiungi_libro(nuova_libreria);
                 break;
             case 2:
                 // possibile mettere la condizione in un if per stampare a video una conferma della modifica del libro o se errore indicare l'errore 
                 // modifica_isbn(nuova); // aggiungere la funzione che deve modificare il dato all'interno della libreria
                 break;
             case 3: 
-                rimuovi_libro(nuova);
+                rimuovi_libro(nuova_libreria);
                 break;
             case 4: 
-                nuova.visualizza_catalogo();
+                if ( ! nuova_libreria.libreria.empty() ){
+                cout<<"Inserire il titolo del libro da cercare: ";
+                cin>>titolo;
+                nuova_libreria.cerca_libro(titolo);
+                }else {
+                    cout<<"La libreria risulta essere vuota"<<endl;
+                }
+                break;
+            case 5: 
+                nuova_libreria.visualizza_catalogo();
+                break;
+            case 6:
+                cout<<"Spegnimento del programma"<<endl;
                 break;
             default:
                 continue;
         }
-    }while(scelta==4);
-    cout<<"Inizio e fine programma"<<endl;
+    }while(scelta!=6);
+    
+    
 
     return 0;
 }
