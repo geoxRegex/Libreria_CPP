@@ -2,7 +2,6 @@
 #include <string>
 #include <vector>
 
-
 using namespace std;
 
 
@@ -30,11 +29,7 @@ int ISBN_corretto(string codice){
 }
 
 
-
-/**
- * @brief necessari i controlli su tutto quello che viene inserito e fatto
- * ISBN formato da 13 cifre, nessun carattere alfabetico ed è necessario che sia univoco
- */
+// classe Libro
 class Libro{
     public:
         string titolo;
@@ -44,6 +39,12 @@ class Libro{
         float prezzo;
 
         Libro(string t, string a, int anno, string isbn, float prezzo): titolo(t), autore(a), anno_pubblicazione(anno), ISBN(isbn), prezzo(prezzo){}
+
+        
+        virtual void stampa_elemento(){
+            cout<<"\nDettaglio libro con condice ISBN: "<< ISBN<< endl;
+            cout<<"\tTitolo: "<< titolo << "\n\tAutore: "<< autore << "\n\tanno pubblicazione: "<< anno_pubblicazione<<"\n\tprezzo: "<< prezzo <<endl; 
+        }
             
 
         // restituisce il nome
@@ -51,15 +52,38 @@ class Libro{
             return titolo;
         }
 
-
-        void stampa(){
-            cout<<"\nDettaglio libro con condice ISBN: "<< ISBN<< endl;
-            cout<<"\tTitolo: "<< titolo << "\n\tAutore: "<< autore << "\n\tanno pubblicazione: "<< anno_pubblicazione<<"\n\tprezzo: "<< prezzo <<endl; 
-        }
-
+        virtual ~Libro() {}
 
 };
 
+
+
+class EBook: public Libro{
+    public:
+        string formato;     // formato EBook
+        float dimensioneMB; // dimensione in MB dell'ebook
+        
+    EBook(string t, string a, int anno, string isbn, float p, string formato, float dimensione) : 
+            Libro(t, a, anno, isbn, p), formato(formato), dimensioneMB(dimensione) {}
+
+    //override
+    void stampa_elemento() override {
+            cout<<"\nDettaglio EBOOK con codice ISBN: "<< ISBN <<endl;
+            cout<<"\tTitolo: "<< titolo << "\n\tAutore: "<< autore << "\n\tanno pubblicazione: "<< anno_pubblicazione<<"\n\tprezzo: "<< prezzo <<  "\n\tformato " << formato <<"\n\tdimensione "<< dimensioneMB<<endl; 
+    }
+};
+
+
+
+/**
+ * @brief Classe libreria, contiene le principai funzionalita' tra cui:
+ *             - visualizzazione del catalgo
+ *             - dimensioni della libreria
+ *             - aggiunta di un nuovo libro 
+ *             - ricerca libro per ISBN
+ *             - rimozione libro
+ * 
+ */
 class Libreria{
     public:
 
@@ -73,14 +97,23 @@ class Libreria{
 
         }
 
-        void visualizza_catalogo(){
 
+        int aggiungi_nuovo(EBook ebook){   
+            
+            libreria.push_back(ebook);    
+            
+            return 0;
+
+        }
+
+        void visualizza_catalogo(){
+            int i;
             if ( libreria.size() == 0 ){
                 cout<<"\nLa libreria risulta attualmente vuota\n"<<endl;
             }
             else {
-                for(Libro l : libreria){
-                    l.stampa();
+                for(i=0; i<libreria.size(); i++){
+                    libreria[i].stampa_elemento();
                 }
             }
         }
@@ -96,18 +129,28 @@ class Libreria{
             int i;
             for (i=0; i < libreria.size(); i++ ){
                 if  ( libreria[i].getNome() == titolo){
-                    libreria[i].stampa();
+                    libreria[i].stampa_elemento();
                     break;
                 }
             }
             cout<<"Libro non trovato all'interno della libreria"<<endl;
         }
+        
+        void rimuovi(string isbn) {
+            bool trovato = false;
+            for (auto it = libreria.begin(); !trovato && it != libreria.end(); ++it) {
+                if (it->ISBN == isbn) {
+                    trovato = true;
+                    libreria.erase(it);
+                }
+            }
+        }
 
-        int rimuovi(string isbn){
-            // TODO
-            // funzione da implementare per rimuovere il libro tramite il codice ISBN
 
-            return 0;
+        ~Libreria() {
+            for (Libro libro : libreria) {
+                delete &libro;
+            }
         }
 
     private: 
@@ -130,59 +173,74 @@ int presente(string nome, string autore, string ISBN){
 }
 
 
-void modifica_info_con_ISBN(Libreria l){
+void modifica_info_con_ISBN(Libreria libreria){
+    string isbn;
+    bool trovato = false;
+    int i, selezione;
+    string titolo, autore;
+    float prezzo;
+    cout<<"Inserire il codice ISBN: ";
+    cin>>isbn;
 
+    for (i=0; i<libreria.libreria.size() && !trovato; i++){
+        if (isbn == libreria.libreria[i].ISBN){
+            trovato = true;
+        }
+    if(trovato){
+            cout<<"Indicare cosa si vuole modificare: "<<endl;
+            cout<<" 1.Titolo"<<endl;
+            cout<<" 2.Autore"<<endl;
+            cout<<" 3.Prezzo"<<endl;
+            cin>>selezione;
+
+            switch(selezione){
+                case 1:
+                    cout<<"indicare il nuovo titolo: ";
+                    cin>>titolo;
+                    libreria.libreria[i].titolo = titolo;
+                    break;
+                case 2:
+                    cout<<"indicare il nuovo autore: ";
+                    cin>>autore;
+                    libreria.libreria[i].autore = autore;
+                    break;
+                case 3:
+                    cout<<"indicare il nuovo prezzo: ";
+                    cin>>prezzo;
+                    libreria.libreria[i].prezzo = prezzo;
+                    break;
+                default:
+                    cout<<"\nErrore nella selezione, ripetere l'operazione dall'inizio";
+                    break;
+            }
+        }
+    }
 }
 
 
 
-
-string ricerca_titolo_autore(Libreria l){
-    
-    
-    return "";
-}
 /**
  * @brief funzione dedicata alla rimozione del libro, scegliere se rimozione da fare per titolo + autore oppure in modo piu' corretto tramite codice isbn
  * 
  */
 void rimuovi_libro(Libreria l){
-    int scelta =0, elimina=0;
-    string isbn="", titolo, autore;
-    do{
-    cout<<"Scegliere se rimuovere un libro tramite: "<<endl;
-    cout<< "  1.Titolo e autore"<<endl;
-    cout<< "  2.Codice ISBN"<<endl;
-    cout<< "  3.Uscire dal menu' per la rimozione libri"<<endl;
-    cin>>scelta;
+    int selezione =0, elimina=0, indice=-1;
+    string isbn, titolo, autore;
+    cout<<"Indicare il codice ISBN del libro da rimuovere: ";
+    cin>>isbn;
 
 
-    switch (scelta){
-        case 1: 
-            cout<<"Inserire titolo del libro da rimuovere: ";
-            cin>>titolo;
-            cout<<"Inserire autore del libro da rimuovere: ";
-            cin>>autore;
-            isbn = ricerca_titolo_autore(l);
 
-            if( !isbn.empty() ){
+    if( !isbn.empty() ){
                 cout<<"Trovato libro con codice ISBN: "<<isbn<< " sei sicuro di voler rimuovere il libro dalla liberia? [1 = Si, 0= No ]: ";
                 cin>> elimina;
-                if(elimina){
+
+                if(elimina == 1){
                     l.rimuovi(isbn);
                 }
-            }
-        default:
-            cout<<"Selezione sbagliata"<<endl;
-            break;
-    }
-    }while(scelta != 3);
-
-
+            }   
     
-
 }
-
 
 int aggiungi_libro(Libreria l){
     string nome, autore, ISBN;
@@ -207,19 +265,9 @@ int aggiungi_libro(Libreria l){
     cout<<"Indicare codice ISBN (13 cifre): ";
     cin>>ISBN;
 
-
-    /**  effettuo un controllo su tutto ovvero:
-     *      isbn: codice deve essere lungo 13 cifre
-     *      prezzo valido: float quindi numero reale con la virgola (punto nella notazione usata)
-     *      univocita': non devono esserci altri libri con stesso (titolo, autore) oppure (ISBN) 
-     * 
-     */
-    
-
-
     /**  
      * Inserimento del nuovo libro all'interno della libreria se:
-     *         ISBN corretto (vedi regole)
+     *         ISBN corretto (string adi 13 cifre)
      *         prezzo valido (float)
      *         il libro non è presente all'interno della liberia (stesso autore e stesso nome)
      */ 
@@ -251,27 +299,24 @@ void stampa_menu_principale(){
 
 // passaggio di 
 void popola_libreria(Libreria &l){
-    l.aggiungi_nuovo(Libro("Il Nome della Rosa", "Umberto Eco", 1980, "978-8806174238", 12.99));
-    l.libreria.emplace_back(Libro("1984", "George Orwell", 1949, "978-0451524935", 9.99));
-    l.libreria.emplace_back(Libro("Il Signore degli Anelli", "J.R.R. Tolkien", 1954, "978-0261102385", 22.99));
+    l.aggiungi_nuovo(Libro("Il Nome della Rosa", "Umberto Eco", 1980, "9788806174238", 12.99));
+    l.aggiungi_nuovo(Libro("1984", "George Orwell", 1949, "9780451524935", 9.99));
+    l.aggiungi_nuovo(Libro("Il Signore degli Anelli", "J.R.R. Tolkien", 1954, "9780261102385", 22.99));
+    l.aggiungi_nuovo(EBook("Il Signore degli Anelli", "J.R.R. Tolkien", 1954, "9780261102385", 12.99, "EPUB", 2.5));
+    l.aggiungi_nuovo(EBook("1984", "George Orwell", 1949, "9780451524935", 8.99, "PDF", 1.2));
+    l.aggiungi_nuovo(EBook("Il Codice Da Vinci", "Dan Brown", 2003, "9780307474278", 10.99, "MOBI", 3.0));
+    l.aggiungi_nuovo(EBook("Harry Potter e la Pietra Filosofale", "J.K. Rowling", 1997, "9780747532699", 9.99, "AZW", 2.8));
+    l.aggiungi_nuovo(EBook("Orgoglio e Pregiudizio", "Jane Austen", 1813, "9780141439518", 7.99, "PDF", 1.5));
 }
 
 
 
-int main(){
+void ciclo_menu(Libreria nuova_libreria){
     int scelta = 0;
-    Libreria nuova_libreria;
     string titolo;
-    /**
-     * @brief variabile scelta, necessaria per poter leggere da std input un intero per poter effettuare le operazioni con l'utente
-     * 
-     */
-
-
-    popola_libreria(nuova_libreria);
-
 
     cout<<"Dimensione attuale della libreria: "<<nuova_libreria.dimensione()<<endl;
+
     do{
 
         stampa_menu_principale();
@@ -282,8 +327,7 @@ int main(){
                 aggiungi_libro(nuova_libreria);
                 break;
             case 2:
-                // possibile mettere la condizione in un if per stampare a video una conferma della modifica del libro o se errore indicare l'errore 
-                // modifica_isbn(nuova); // aggiungere la funzione che deve modificare il dato all'interno della libreria
+                modifica_info_con_ISBN(nuova_libreria);
                 break;
             case 3: 
                 rimuovi_libro(nuova_libreria);
@@ -307,8 +351,20 @@ int main(){
                 continue;
         }
     }while(scelta!=6);
+ 
+}
+
+
+
+
+int main(){
     
+    Libreria nuova_libreria;
     
+    popola_libreria(nuova_libreria);
+
+    ciclo_menu(nuova_libreria);
+
 
     return 0;
 }
